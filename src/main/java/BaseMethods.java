@@ -9,12 +9,12 @@ public class BaseMethods extends Preparation implements Parameters{
 
    public Logger logger = Logger.getLogger(BaseMethods.class.getName());
 
-    public String getFilmIDByName(String movieTitle, String filteredMovie) {
+    public String getFilmIDByTitle(String movieTitle, String filteredMovie, String year) {
         Response response = RestAssured.given().when()
                 .param("apikey", apiKey)
                 .param(movieTitleToSearch, movieTitle)
                 .param(dataType, "json")
-                .param(yearOfRelease, "2001")
+                .param(yearOfRelease, year)
                 .get(RestAssured.baseURI)
                 .then()
                 .assertThat()
@@ -30,33 +30,37 @@ public class BaseMethods extends Preparation implements Parameters{
         for (int index = 0; index < jsonResponseTitle.size(); index++) {
             if (jsonResponseTitle.get(index).equals(filteredMovie)) {
                 movieId = jsonResponseID.get(index);
-                logger.info("Movie Id: " + movieId);
             }
         }
+
+        logger.info("Movie Id: " + movieId);
 
         return movieId;
     }
 
-    public void getFilmIDByTitle(String movieTitle, String filteredMovie) {
-        String id = getFilmIDByName(movieTitle, filteredMovie);
+    public void getFilmInfoWithID(String movieTitle, String filteredMovie, String year) {
+        String id = getFilmIDByTitle(movieTitle, filteredMovie, year);
 
-        String response = RestAssured.given()
+        Response response = RestAssured.given()
                 .when()
                 .param("apikey", apiKey)
                 .param(dataType, "json")
                 .param(movieByID, id)
-                .param(yearOfRelease, "2001")
+                .param(yearOfRelease, year)
                 .get(RestAssured.baseURI)
                 .then()
                 .assertThat()
                 .statusCode(200)
                 .assertThat()
                 .extract()
-                .response().asString();
+                .response();
 
-        Assert.assertEquals(true, response.contains(filteredMovie));
-        Assert.assertEquals(true, response.contains("Year"));
-        System.out.println(response);
+        Assert.assertEquals(true, response.asString().contains(filteredMovie));
+        Assert.assertEquals(true, response.asString().contains("Year"));
+
+        String releaseDate = response.path("Released");
+        logger.info("Release Date: " +releaseDate);
+
     }
 
 }
