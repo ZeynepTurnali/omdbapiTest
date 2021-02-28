@@ -1,5 +1,6 @@
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 
@@ -14,8 +15,8 @@ public class Preparation {
 
     }
 
-    @AfterClass
-    public static void after(){
+    @After
+    public void after(){
         System.out.println("test ended");
     }
 
